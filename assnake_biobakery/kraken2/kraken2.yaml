@@ -3,6 +3,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - metaphlan
-  - humann
-  - bowtie2
+  - kraken2

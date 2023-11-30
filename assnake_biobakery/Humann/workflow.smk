@@ -6,21 +6,21 @@ rule cat:
         r1 = "{fs_prefix}/{df}/reads/{preproc}/{df_sample}_R1.fastq.gz",
         r2 = "{fs_prefix}/{df}/reads/{preproc}/{df_sample}_R2.fastq.gz"
     output:
-        "{fs_prefix}/{df}/reads/{preproc}/{df_sample}_R1_R2.fastq.gz"
+        read = "{fs_prefix}/{df}/reads/{preproc}/{df_sample}_R1_R2.fastq.gz"
     threads:15
     shell:
-        "cat {input} > {output}"
+        "cat {input} > {output.read}"
 
 rule humann:
     input:
         read = "{fs_prefix}/{df}/reads/{preproc}/{df_sample}_R1_R2.fastq.gz"
     output:
-        gf = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}_R1_R2__genefamilies.tsv",
-        pa = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}_R1_R2_pathabundance.tsv",
-        pc = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}_R1_R2_pathcoverage.tsv" 
+        gf = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}/{df_sample}_R1_R2_genefamilies.tsv",
+        pa = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}/{df_sample}_R1_R2_pathabundance.tsv",
+        pc = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}/{df_sample}_R1_R2_pathcoverage.tsv" 
     params:
         output_dir    = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}" ,
-        metaphlan_dir = '{fs_prefix}/{df}/taxa/metaphlan/{preproc}/{df_sample}_metaphlan_R1_R2.txt',
+        metaphlan_dir = '{fs_prefix}/{df}/taxa/metaphlan/{preproc}/{df_sample}/{df_sample}_metaphlan_R1_R2.txt',
         uniref_database = '~/db_assnake/uniref',
         chocophlan_database = '~/db_assnake/chocophlan'
     threads:45
@@ -32,10 +32,13 @@ rule humann:
 rule renorm:
     input: 
         input_path_table  = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}/{df_sample}_R1_R2_pathabundance.tsv",
-        input_gene_table  = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}/{df_sample}_R1_R2__genefamilies.tsv"
+        input_gene_table  = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}/{df_sample}_R1_R2_genefamilies.tsv"
     output:
-        renorm_path_table = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}{df_sample}_R1_R2_pathabundance-relab.tsv",
-        renorm_gene_table = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}{df_sample}_R1_R2_genefamilies-relab.tsv"
+        renorm_path_table = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}/{df_sample}_R1_R2_pathabundance-relab.tsv",
+        renorm_gene_table = "{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}/{df_sample}_R1_R2_genefamilies-relab.tsv"
+    params:
+        python_file = "~/db_assnake/humann_tools/humann/tools/renorm_table.py"
+    conda: '../biobakery.yaml'
     shell:
         """humann_renorm_table --input {input.input_path_table}  --output {output.renorm_path_table} --units relab --update-snames;
            humann_renorm_table --input {input.input_gene_table}  --output {output.renorm_gene_table} --units relab --update-snames

@@ -5,6 +5,8 @@ import  glob, os
 from assnake.utils.general import download_from_url
 from assnake.core.config import update_instance_config, read_assnake_instance_config
 import tarfile
+import subprocess
+from git import Repo
 
 @click.command('biobakery-chocophlan-db', short_help='Initialize CHOCOPhlAn database for metaphlan')
 @click.option('--db-location','-d', 
@@ -93,3 +95,19 @@ def kraken2_init(config, db_location):
      download_from_url(taxo, filename)
 
      update_instance_config({'kraken2_db': db_location})
+
+@click.command('humann_tools', short_help='Initialize humann files')
+@click.option('--db-location','-d', 
+            help='Where to store humn GITHUB.',  
+            required=False )
+@click.pass_obj
+def humann_init(config, db_location):
+     if db_location is None: # If no path is provided use default
+        instance_config = read_assnake_instance_config()
+        db_location = os.path.join(instance_config['assnake_db'], 'humann_tools')
+    
+     #Repo.clone_from(git_url, repo_dir)
+     command = ['git', 'clone', 'https://github.com/biobakery/humann',db_location]
+     output = subprocess.check_output(command)
+     
+     update_instance_config({'humann_tools': db_location})

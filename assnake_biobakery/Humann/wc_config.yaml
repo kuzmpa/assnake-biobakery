@@ -1,1 +1,1 @@
-Humann_wc: '{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}_R1_R2_pathabundance-relab.tsv'
+Humann_wc: '{fs_prefix}/{df}/pathway/humann/{preproc}/{df_sample}/{df_sample}_R1_R2_pathabundance-relab.tsv'
